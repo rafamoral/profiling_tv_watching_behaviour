@@ -15,7 +15,7 @@ library(runjags)
 library(gridExtra)
 library(extraDistr)
 
-## loading the customer data
+## loading the customer data (raw data not available to protect BT and YouView IP)
 active <- read_xlsx("active.xlsx")
 cancelled <- read_xlsx("cancelled.xlsx")
 
@@ -55,20 +55,20 @@ Time_full_data <- sapply(full_data_times, function(x) x$Time)
 n_sessions <- apply(N_matrix, 2, function(x) sum(!is.na(x)))
 Time_array <- array(NA, dim = c(max(N_full_data), max(n_sessions), n_customers))
 
-Drama <- Movies <- Sport <- Factual <- Kids <- 
-  Reality <- Crime <- News <- unknown <- array(NA, dim = c(max(N_full_data), max(n_sessions), n_customers))
+Genre1 <- Genre2 <- Genre3 <- Genre4 <- Genre5 <- 
+  Genre6 <- Genre7 <- Genre8 <- unknown <- array(NA, dim = c(max(N_full_data), max(n_sessions), n_customers))
 
 for(c in 1:n_customers) {
   for(s in 1:n_sessions[c]) {
     for(i in 1:N_matrix[s,c]) {
-      Drama[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Drama", 1, 0)
-      Movies[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Movies", 1, 0)
-      Sport[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Sport", 1, 0)
-      Factual[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Factual", 1, 0)
-      Kids[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Kids", 1, 0)
-      Reality[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Reality", 1, 0)
-      Crime[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Crime", 1, 0)
-      News[i,s,c] <- ifelse(full_data$GENRE[s*c] == "News", 1, 0)
+      Genre1[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre1", 1, 0)
+      Genre2[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre2", 1, 0)
+      Genre3[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre3", 1, 0)
+      Genre4[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre4", 1, 0)
+      Genre5[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre5", 1, 0)
+      Genre6[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre6", 1, 0)
+      Genre7[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre7", 1, 0)
+      Genre8[i,s,c] <- ifelse(full_data$GENRE[s*c] == "Genre8", 1, 0)
       unknown[i,s,c] <- ifelse(full_data$GENRE[s*c] == "unknown", 1, 0)
     }
   }
@@ -110,14 +110,14 @@ jagsscript <- cat("
           ## linear predictor
           log(mu[i,s,c]) = eta[i,s,c] + omega[i,s,c]
           ## regressors - random intercepts per genre
-          eta[i,s,c] = g[1,c] * Drama[i,s,c] +
-                       g[2,c] * Movies[i,s,c] +
-                       g[3,c] * Sport[i,s,c] +
-                       g[4,c] * Factual[i,s,c] +
-                       g[5,c] * Kids[i,s,c] +
-                       g[6,c] * Reality[i,s,c] +
-                       g[7,c] * Crime[i,s,c] +
-                       g[8,c] * News[i,s,c]
+          eta[i,s,c] = g[1,c] * Genre1[i,s,c] +
+                       g[2,c] * Genre2[i,s,c] +
+                       g[3,c] * Genre3[i,s,c] +
+                       g[4,c] * Genre4[i,s,c] +
+                       g[5,c] * Genre5[i,s,c] +
+                       g[6,c] * Genre6[i,s,c] +
+                       g[7,c] * Genre7[i,s,c] +
+                       g[8,c] * Genre8[i,s,c]
           ## AR component
           omega[i,s,c] = p[s,c] * log(Time[i-1,s,c])
         }
@@ -178,14 +178,14 @@ jags_data <- list("n_customers" = n_customers, # scalar
                   "n_sessions" = sapply(n_sessions, function(x) min(x, 300)), # vector, customer
                   "n_genre" = 8, # scalar
                   "Time" = Time_array[1:300,1:300,] + .00001, # 3-d array, event x session x customer
-                  "Drama" = Drama[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Movies" = Movies[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Sport" = Sport[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Factual" = Factual[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Kids" = Kids[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Reality" = Reality[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "Crime" = Crime[1:300,1:300,], # 3-d dummy array, event x session x customer
-                  "News" = News[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre1" = Genre1[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre2" = Genre2[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre3" = Genre3[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre4" = Genre4[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre5" = Genre5[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre6" = Genre6[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre7" = Genre7[1:300,1:300,], # 3-d dummy array, event x session x customer
+                  "Genre8" = Genre8[1:300,1:300,], # 3-d dummy array, event x session x customer
                   "N" = N_matrix2) # matrix, session x customer
 
 # parameters to be monitored
